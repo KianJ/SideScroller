@@ -51,6 +51,9 @@ public:
 	void ResetCharacter();
 	virtual void ResetCharacter_Implementation();
 
+	UFUNCTION(BlueprintCallable, Category = Health)
+	void KillCharacter();
+
 protected:	
 
 	UFUNCTION(BlueprintNativeEvent, Category = Health)

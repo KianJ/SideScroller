@@ -104,6 +104,12 @@ void ACppSideScrollerCharacter::ResetCharacter_Implementation()
 	GetWorld()->GetAuthGameMode()->RestartPlayer(controller);
 }
 
+void ACppSideScrollerCharacter::KillCharacter()
+{
+	CurrentHealth = 0;
+	OnCharacterDeath();
+}
+
 void ACppSideScrollerCharacter::MoveRight(float Value)
 {
 	// add movement in that direction
