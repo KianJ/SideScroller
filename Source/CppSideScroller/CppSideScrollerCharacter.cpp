@@ -51,8 +51,10 @@ ACppSideScrollerCharacter::ACppSideScrollerCharacter()
 
 	JumpMaxCount = 2;
 	MaxHealth = 10.0F;
-	MinFallDamageHeight = 500.0F;
+	MinFallDamageHeight = 800.0F;
 	FallDamageMultiplier = 0.01F;
+
+	DealDamage = true;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -81,6 +83,7 @@ void ACppSideScrollerCharacter::Damage_Implementation(float damageValue)
 	damageValue = FMath::Abs(damageValue) * -1.0F;
 	if (damageValue < 0.0F)
 	{
+
 		ModifyHealth(damageValue);
 	}	
 }
@@ -151,8 +154,20 @@ void ACppSideScrollerCharacter::Landed(const FHitResult& Hit)
 	Super::Landed(Hit);
 	if (fallingDistance > MinFallDamageHeight)
 	{
-		float fallDamage = (fallingDistance - MinFallDamageHeight) * FallDamageMultiplier;
-		Damage(fallDamage);
+		AActor* HitActor = Hit.GetActor();
+		if (HitActor->Tags.Contains(TEXT("BouncyPlatform")))
+		{
+			fallingDistance = 0.0F;
+			fallDamage = 0;
+			Damage(0);
+			FallDamageMultiplier = 0.0F;
+		}
+		else
+		{
+			fallDamage = (fallingDistance - MinFallDamageHeight) * FallDamageMultiplier;
+			Damage(fallDamage);
+			FallDamageMultiplier = 0.01F;
+		}
 	}
 	fallingDistance = 0.0F;
 }

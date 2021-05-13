@@ -30,8 +30,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = FallDamage)
 	float MinFallDamageHeight;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = FallDamage)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FallDamage)
 	float FallDamageMultiplier;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+	float fallDamage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health)
+	bool DealDamage;
 
 	UFUNCTION(BlueprintCallable, Category = Health)
 	bool IsCharacterAlive() const { return CurrentHealth > 0.0F; }
@@ -53,6 +59,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Health)
 	void KillCharacter();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FallDamage)
+	float fallingDistance;
 
 protected:	
 
@@ -85,5 +94,4 @@ public:
 
 private:
 	FVector previousLocation;
-	float fallingDistance;
 };
