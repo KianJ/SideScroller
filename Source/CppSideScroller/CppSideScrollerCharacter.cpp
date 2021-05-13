@@ -54,8 +54,6 @@ ACppSideScrollerCharacter::ACppSideScrollerCharacter()
 	MinFallDamageHeight = 800.0F;
 	FallDamageMultiplier = 0.01F;
 
-	DealDamage = true;
-
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -97,6 +95,7 @@ void ACppSideScrollerCharacter::OnCharacterDeath_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->GravityScale = 0.0F;
+	IsAlive = false;
 }
 
 void ACppSideScrollerCharacter::ResetCharacter_Implementation()
@@ -126,12 +125,30 @@ void ACppSideScrollerCharacter::SetupPlayerInputComponent(class UInputComponent*
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACppSideScrollerCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACppSideScrollerCharacter::MoveRight);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ACppSideScrollerCharacter::BeginSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ACppSideScrollerCharacter::EndSprint);
 
 	ACppSideScrollerGameState* gameState = Cast<ACppSideScrollerGameState>(UGameplayStatics::GetGameState(this));
 	if (gameState != nullptr)
 	{
 		PlayerInputComponent->BindAction("Restart", IE_Pressed, gameState, &ACppSideScrollerGameState::ResetGame);
 	}	
+}
+
+void ACppSideScrollerCharacter::BeginSprint()
+{
+	if (!GetCharacterMovement()->IsFalling() && CanSprint == true)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 1000.f;
+	}
+}
+
+void ACppSideScrollerCharacter::EndSprint()
+{
+	if (CanSprint == true)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+	}
 }
 
 void ACppSideScrollerCharacter::Jump()
@@ -157,16 +174,12 @@ void ACppSideScrollerCharacter::Landed(const FHitResult& Hit)
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor->Tags.Contains(TEXT("BouncyPlatform")))
 		{
-			fallingDistance = 0.0F;
-			fallDamage = 0;
-			Damage(0);
-			FallDamageMultiplier = 0.0F;
+
 		}
 		else
 		{
 			fallDamage = (fallingDistance - MinFallDamageHeight) * FallDamageMultiplier;
 			Damage(fallDamage);
-			FallDamageMultiplier = 0.01F;
 		}
 	}
 	fallingDistance = 0.0F;
@@ -176,6 +189,8 @@ void ACppSideScrollerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentHealth = MaxHealth;
+	IsAlive = true;
+	CanSprint = true;
 	previousLocation = GetActorLocation();
 	ACppSideScrollerGameMode* gameMode = Cast<ACppSideScrollerGameMode>(GetWorld()->GetAuthGameMode());
 	if (gameMode != nullptr)

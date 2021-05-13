@@ -37,7 +37,10 @@ public:
 	float fallDamage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health)
-	bool DealDamage;
+	bool IsAlive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sprinting)
+	bool CanSprint;
 
 	UFUNCTION(BlueprintCallable, Category = Health)
 	bool IsCharacterAlive() const { return CurrentHealth > 0.0F; }
@@ -62,6 +65,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FallDamage)
 	float fallingDistance;
+
+	UFUNCTION(BlueprintCallable, Category = Sprinting)
+	void BeginSprint();
+
+	UFUNCTION(BlueprintCallable, Category = Sprinting)
+	void EndSprint();
 
 protected:	
 
